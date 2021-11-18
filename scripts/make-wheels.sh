@@ -1,12 +1,9 @@
 set -ex
 
-apt install -y binutils
-
-cd lbry-rocksdb
 mkdir -p dist
 
 function build_wheel() {
-  /opt/python/$1/bin/pip install cython wheel
+  # /opt/python/$1/bin/pip install cython wheel
 	/opt/python/$1/bin/pip wheel . -f . -w dist
 }
 

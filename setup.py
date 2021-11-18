@@ -71,15 +71,15 @@ else:
     sys.exit(1)
 
 setup(
-    name="lbry-rocksdb",
+    name="lbry-rocksdb-optimized",
     version=version,
     keywords=['rocksdb', 'static', 'build'],
     description="Python bindings for RocksDB",
     long_description=open("README.md").read(),
     long_description_content_type='text/markdown',
-    author='Jack Robison',
-    author_email="jackrobison@lbry.com",
-    url="https://github.com/lbryio/lbry-rocksdb",
+    author='Binh Vu',
+    author_email="binh@toan2.com",
+    url="https://github.com/binh-vu/lbry-rocksdb",
     license='BSD License',
 	python_requires=">=3.7.0",
     setup_requires=['setuptools>=25', 'Cython>=0.20'],
