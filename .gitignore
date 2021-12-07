@@ -9,3 +9,4 @@ docs/_build
 __pycache__
 rocksdb/_rocksdb.cpp
 dist
+venvs

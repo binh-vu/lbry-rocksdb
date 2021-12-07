@@ -44,6 +44,7 @@ jobs:
           - 3.7
           - 3.8
           - 3.9
+          - 3.10
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
