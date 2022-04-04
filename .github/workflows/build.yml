@@ -2,6 +2,7 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
 name: build
+env: DEBUG_LEVEL: 0
 on:
   push:
     branches:
@@ -10,10 +11,11 @@ jobs:
   manylinux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Cache .a files
+        id: build-cache
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}
@@ -25,56 +27,59 @@ jobs:
             src/rocksdb/libz.a
             src/rocksdb/librocksdb.a
       - name: Install requirements
-        run: sudo apt-get install build-essential binutils cmake
+        run: sudo apt-get install build-essential binutils cmake python3-cffi
       - name: Make static library files
+        if: steps.build-cache.outputs.cache-hit != 'true'
         run: make clean && make
       - name: Build wheels
-        run: /bin/bash scripts/build.sh
+        run: /bin/bash scripts/make-wheels.sh
       - uses: actions/upload-artifact@v2
         with:
           name: wheels
           path: dist/
       - name: Install twine
         run: python -m pip install twine
-  macos:
-    strategy:
-      fail-fast: true
-      matrix:
-        python:
-          - 3.7
-          - 3.8
-          - 3.9
-          - 3.10
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Cache .a files
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}
-          path: |
-            src/rocksdb/libsnappy.a
-            src/rocksdb/liblz4.a
-            src/rocksdb/libbz2.a
-            src/rocksdb/libzstd.a
-            src/rocksdb/libz.a
-            src/rocksdb/librocksdb.a
-      - name: Setup python${{ matrix.python }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: "${{ matrix.python }}"
-      - name: Make static library files
-        run: make clean && make
-      - name: Install requires
-        run: python -m pip install cython twine wheel
-      - name: Build wheel
-        run: python setup.py bdist_wheel
-      - uses: actions/upload-artifact@v2
-        with:
-          name: wheels
-          path: dist/
+  # macos:
+  #   strategy:
+  #     fail-fast: true
+  #     matrix:
+  #       python:
+  #         - 3.7
+  #         - 3.8
+  #         - 3.9
+  #         - 3.10
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         submodules: recursive
+  #     - name: Cache .a files
+  #       id: build-cache
+  #       uses: actions/cache@v2
+  #       with:
+  #         key: ${{ runner.os }}
+  #         path: |
+  #           src/rocksdb/libsnappy.a
+  #           src/rocksdb/liblz4.a
+  #           src/rocksdb/libbz2.a
+  #           src/rocksdb/libzstd.a
+  #           src/rocksdb/libz.a
+  #           src/rocksdb/librocksdb.a
+  #     - name: Setup python${{ matrix.python }}
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: "${{ matrix.python }}"
+  #     - name: Make static library files
+  #      if: steps.build-cache.outputs.cache-hit != 'true'
+  #       run: make clean && make
+  #     - name: Install requires
+  #       run: python -m pip install cython twine wheel
+  #     - name: Build wheel
+  #       run: python setup.py bdist_wheel
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         name: wheels
+  #         path: dist/
 #      - name: Publishing to pypi
 #        run: twine upload --skip-existing --disable-progress-bar dist/*.whl
 #        env:
